@@ -1,0 +1,16 @@
+Symboltabelle
+Nr	Name                    Type    Int_Typ Offset	Line	Index1	Index2	Vater	Parameter
+---------------------------------------------------------------------------------------------
+0:	If_Demo             	Prg     None    18		0		0		0		0		0		
+0:	wert                	Int     None    0		0		0		0		0		0		
+0:	d                   	Int     None    4		0		0		0		0		0		
+0:	H0                  	Bool    None    8		0		0		0		0		0		
+0:	H1                  	Bool    None    9		0		0		0		0		0		
+0:	H2                  	Bool    None    10		0		0		0		0		0		
+0:	H3                  	Bool    None    11		0		0		0		0		0		
+0:	H4                  	Bool    None    12		0		0		0		0		0		
+0:	H5                  	Bool    None    13		0		0		0		0		0		
+0:	H6                  	Bool    None    14		0		0		0		0		0		
+0:	H7                  	Bool    None    15		0		0		0		0		0		
+0:	H8                  	Bool    None    16		0		0		0		0		0		
+0:	H9                  	Bool    None    17		0		0		0		0		0		
