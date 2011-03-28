@@ -8,6 +8,16 @@
 //Bison declarations
 
 
+// Adapted from http://en.wikipedia.org/wiki/Operators_in_C_and_C%2B%2Bv 
+%left '='	// unsure about this, is it really necessary?
+%left LOG_OR
+%left LOG_AND
+%left EQUAL NOT_EQUAL
+%left '<' LESS_OR_EQUAL '>' GREATER_OR_EQUAL
+%left SHIFTLEFT
+%left '+' '-'
+%left '*' '/' '%'
+%left INC_OP DEC_OP U_PLUS U_MINUS '!' 
 
 %%    // grammar rules
 
