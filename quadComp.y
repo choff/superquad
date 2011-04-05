@@ -7,7 +7,23 @@
 %}
 //Bison declarations
 
+%token RETURN
+%token TYPE_VOID
+%token TYPE_FLOAT
+%token TYPE_INT
 
+%token IDENTIFIER
+
+%token INT_CONSTANT
+%token FLOAT_CONSTANT
+
+/* Control structures */
+%token IF
+%token ELSE
+%token WHILE
+%token DO
+
+/* Arithemetic and logical operations */
 // Adapted from http://en.wikipedia.org/wiki/Operators_in_C_and_C%2B%2Bv 
 %left '='	// unsure about this, is it really necessary?
 %left LOG_OR
@@ -45,24 +61,23 @@ declaration_list
     ;
 
 declaration
-    : INT id
-    | FLOAT id
+    : TYPE_INT id
+    | TYPE_FLOAT id
     | declaration ',' id
     ;
 
 parameter_list
-    : INT id
-    | FLOAT id
-    | parameter_list ',' INT id
-    | parameter_list ',' FLOAT id
-    | VOID                     
-    |                          
+    : TYPE_INT id
+    | TYPE_FLOAT id
+    | parameter_list ',' TYPE_INT id
+    | parameter_list ',' TYPE_FLOAT id
+    | TYPE_VOID
     ;
 
 var_type
-    : INT 
-    | VOID
-    | FLOAT
+    : TYPE_INT 
+    | TYPE_VOID
+    | TYPE_FLOAT
     ;
 
 
@@ -120,7 +135,8 @@ expression
     | '!' expression                           
     | '+' expression %prec U_PLUS              
     | '-' expression %prec U_MINUS             
-    | CONSTANT                                 
+    | FLOAT_CONSTANT
+    | INT_CONSTANT
     | '(' expression ')'                       
     | id '(' exp_list ')'                      
     | id '('  ')'                              
@@ -138,4 +154,6 @@ id
     
 %%
 
-//Epilogue
+yyerror(const char* s)  {
+	printf("I am afraid to tell you that there is an error in your code at \"%s\".Unfortunately I cannot tell you the line number!\n", s);
+}
