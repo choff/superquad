@@ -15,7 +15,7 @@
 "<="	{ return LESS_OR_EQUAL; }
 "<<"	{ return SHIFTLEFT; }
 	/* CONSTANT */
+	{ return CONSTANT; }
 	/* IDENTIFIER */
-
 
 %%
