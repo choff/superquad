@@ -1,6 +1,4 @@
 %option noyywrap
-%option yylineno
-
 %{
 	#include "global.h"
 	#include "quadComp.tab.h"
@@ -20,7 +18,7 @@
 "<="	{ return LESS_OR_EQUAL; }
 "<<"	{ return SHIFTLEFT; }
 
-"="		{ printf(stderr, "Assign recognized\n"); return ASSIGN; }
+"="		{ fprintf(stderr, "Assign recognized\n"); return ASSIGN; }
 
 "void"	{ return TYPE_VOID; }
 "if"	{ return IF; }
@@ -36,7 +34,7 @@
 
 [a-zA-Z][a-zA-Z0-9_]*	{ fprintf(stderr, "Identifier \"%s\"\n", yytext); return IDENTIFIER; }
 
-[{}()[\];,\.<>]	{return *yytext;}
+[{}()[\];,\.<>\/\*]	{return *yytext;}
 
 . { } // Filter all other characters.
 %%
