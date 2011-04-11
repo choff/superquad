@@ -164,6 +164,8 @@ void pr_debug(char *message, char *file, int lineno) {
 }
 
 int main() {
+    yylineno = 1;
+
 	printf("Superquad is now starting the parse process...\n");
 
 	yyparse();
