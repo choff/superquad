@@ -1,11 +1,14 @@
 %{
 //Prologue
+	#include <stdio.h>
 
-
-
+	void pr_debug(char *message, char *file, int lineno);
+	#define DEBUG(msg) (pr_debug(msg, __FILE__, __LINE__))
 
 %}
 //Bison declarations
+
+%start programm
 
 %token RETURN
 %token TYPE_VOID
@@ -39,14 +42,14 @@
 
 
 programm
-    : function                  
-    | programm function         
+    : function { printf("Program with single function"); }                 
+    | programm function { printf("Program with more functions"); }
     ;
 
 
 
 function
-    : var_type id '(' parameter_list ')' ';'
+    : var_type id '(' parameter_list ')' ';' { printf("Function prototype recognized"); }
     | var_type id '(' parameter_list ')' function_body
     ;
 
@@ -77,7 +80,7 @@ parameter_list
 var_type
     : TYPE_INT 
     | TYPE_VOID
-    | TYPE_FLOAT
+    | TYPE_FLOAT { DEBUG("PARSER: Float variable type\n"); }
     ;
 
 
@@ -154,7 +157,13 @@ id
     
 %%
 
+void pr_debug(char *message, char *file, int lineno) {
+	fprintf(stderr, "%s(%d): %s\n", file, lineno, message);
+}
+
 int main() {
+	printf("Superquad is now starting the parse process...\n");
+
 	yyparse();
 	return 0;
 }
