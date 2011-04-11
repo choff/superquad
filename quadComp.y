@@ -154,6 +154,11 @@ id
     
 %%
 
+int main() {
+	yyparse();
+	return 0;
+}
+
 yyerror(const char* s)  {
 	printf("I am afraid to tell you that there is an error in your code at \"%s\".Unfortunately I cannot tell you the line number!\n", s);
 }

@@ -124,7 +124,7 @@ void addSymboltableEntry (symtabEntry * Symboltable,
 
 
 
-int main (void){
+int main_w (void){
 	FILE * outputFile;
 
 	//sample for a valid symboltable
