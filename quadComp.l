@@ -8,15 +8,18 @@
 %%
 
 \/\/.*\n { fprintf(stderr, "One-line comment\n"); } // one-line comment
-\/\*.*\*\/ { fprintf(stderr, "Mutiline comment\n"); } // mutiöine comment
+\/\*.*\*\/ { fprintf(stderr, "Mutiline comment\n"); } // mutiline comment
 
-"||"	{ return LOG_OR; }
+"||"	{ return LOG_OR; } // 
 "&&"	{ return LOG_AND; }
 "!="	{ return NOT_EQUAL; }
 "=="	{ return EQUAL; }
 ">="	{ return GREATER_OR_EQUAL; }
 "<="	{ return LESS_OR_EQUAL; }
 "<<"	{ return SHIFTLEFT; }
+
+"="		{ printf(stderr, "Assign recognized\n"); return ASSIGN; }
+
 "void"	{ return TYPE_VOID; }
 "if"	{ return IF; }
 "else"	{ return ELSE; }
@@ -31,4 +34,7 @@
 
 [a-zA-Z][a-zA-Z0-9_]*	{ fprintf(stderr, "Identifier \"%s\"\n", yytext); return IDENTIFIER; }
 
+[{}()[\];,\.<>]	{return *yytext;}
+
+. { } // Filter all other characters.
 %%

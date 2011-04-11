@@ -10,6 +10,8 @@
 
 %start programm
 
+%right ASSIGN
+
 %token RETURN
 %token TYPE_VOID
 %token TYPE_FLOAT
@@ -28,7 +30,7 @@
 
 /* Arithemetic and logical operations */
 // Adapted from http://en.wikipedia.org/wiki/Operators_in_C_and_C%2B%2Bv 
-%left '='	// unsure about this, is it really necessary?
+//%left '='	// unsure about this, is it really necessary?
 %left LOG_OR
 %left LOG_AND
 %left EQUAL NOT_EQUAL
@@ -49,8 +51,8 @@ programm
 
 
 function
-    : var_type id '(' parameter_list ')' ';' { printf("Function prototype recognized"); }
-    | var_type id '(' parameter_list ')' function_body
+    : var_type id '(' parameter_list ')' ';' { DEBUG("Function prototype recognized\n"); }
+    | var_type id '(' parameter_list ')' function_body { DEBUG("Function body recognized\n"); }
     ;
 
 function_body
@@ -78,9 +80,9 @@ parameter_list
     ;
 
 var_type
-    : TYPE_INT 
-    | TYPE_VOID
-    | TYPE_FLOAT { DEBUG("PARSER: Float variable type\n"); }
+    : TYPE_INT { DEBUG("Int variable type\n"); }
+    | TYPE_VOID { DEBUG("Void variable type\n"); }
+    | TYPE_FLOAT { DEBUG("Float variable type\n"); }
     ;
 
 
@@ -115,7 +117,7 @@ unmatched_statement
 
 assignment
     : expression                 
-    | id '='          expression 
+    | id ASSIGN          expression { DEBUG("Assignment recognized"); }
     ;
 
 expression
