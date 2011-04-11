@@ -1,10 +1,10 @@
 %{
-//Prologue
 	#include <stdio.h>
+	
+	extern int yylineno;
 
 	void pr_debug(char *message, char *file, int lineno);
 	#define DEBUG(msg) (pr_debug(msg, __FILE__, __LINE__))
-
 %}
 //Bison declarations
 
@@ -171,5 +171,5 @@ int main() {
 }
 
 yyerror(const char* s)  {
-	printf("I am afraid to tell you that there is an error in your code at \"%s\".Unfortunately I cannot tell you the line number!\n", s);
+	printf("%s in line %d.\n", s, yylineno);
 }

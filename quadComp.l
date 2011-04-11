@@ -1,4 +1,6 @@
 %option noyywrap
+%option yylineno
+
 %{
 	#include "global.h"
 	#include "quadComp.tab.h"
