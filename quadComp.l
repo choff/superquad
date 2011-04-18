@@ -7,8 +7,8 @@
 
 %%
 
-\/\/.*\n { fprintf(stderr, "One-line comment\n"); } // one-line comment
-\/\*.*\*\/ { fprintf(stderr, "Mutiline comment\n"); } // mutiline comment
+\/\/.*\n { DEBUG("One-line comment"); } // one-line comment
+\/\*.*\*\/ { DEBUG("Mutiline comment"); } // mutiline comment
 
 "||"	{ return LOG_OR; } // 
 "&&"	{ return LOG_AND; }
@@ -18,7 +18,7 @@
 "<="	{ return LESS_OR_EQUAL; }
 "<<"	{ return SHIFTLEFT; }
 
-"="		{ fprintf(stderr, "Assign recognized\n"); return ASSIGN; }
+"="		{ DEBUG("Assign recognized"); return ASSIGN; }
 
 "void"	{ return TYPE_VOID; }
 "if"	{ return IF; }
@@ -26,13 +26,21 @@
 "return"	{return RETURN; }
 "while"	{ return WHILE; }
 "do"	{ return DO; }
-"int"	{ fprintf(stderr, "Int recognized\n"); return TYPE_INT; }
-"float"	{ fprintf(stderr, "Float recognized\n"); return TYPE_FLOAT; }
+"int"	{ DEBUG("Int recognized"); return TYPE_INT; }
+"float"	{ DEBUG("Float recognized"); return TYPE_FLOAT; }
 
-[0-9]+.[0-9]+	{ yylval = atof(yytext); return FLOAT_CONSTANT; }
-[0-9]+	{ yylval = atoi(yytext); return INT_CONSTANT; }
+[0-9]+.[0-9]+	{ yylval.fval = atof(yytext); return FLOAT_CONSTANT; }
+[0-9]+	{ yylval.intval = atoi(yytext); return INT_CONSTANT; }
 
-[a-zA-Z][a-zA-Z0-9_]*	{ fprintf(stderr, "Identifier \"%s\"\n", yytext); return IDENTIFIER; }
+[a-zA-Z_][a-zA-Z0-9_]*	{ 
+	// yytext will be overwritten once the next token is scanned, therefore we
+	// have to save its contents to yylval here
+	strcpy(yylval.string, yytext);
+	char tmp[1000];
+	sprintf(tmp, "Identifier \"%s\"", yylval.string);
+	DEBUG(tmp);
+	return IDENTIFIER;
+}
 
 [{}()[\];,\.<>\/\*]	{return *yytext;}
 

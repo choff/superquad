@@ -3,6 +3,9 @@
 
 #endif /*GLOBAL_H_*/
 
+void pr_debug(char *message, char *file, int lineno);
+#define DEBUG(msg) (pr_debug(msg, __FILE__, __LINE__))
+
 typedef enum symtab_EntryType {INTEGER, REAL, BOOL, PROC, NOP, ARR, FUNC, PROG, PRG_PARA}
 	symtabEntryType;
 
@@ -21,6 +24,6 @@ typedef struct a_symtabEntry{
 	struct a_symtabEntry * next;
 } symtabEntry;
 
-void  addSymboltableEntry (symtabEntry * Symboltable,char * name,symtabEntryType type,symtabEntryType internType,int offset,int line,int index1,int index2,symtabEntry * vater,int parameter);
+void  addSymboltableEntry (symtabEntry** Symboltable,char * name,symtabEntryType type,symtabEntryType internType,int offset,int line,int index1,int index2,symtabEntry * vater,int parameter);
 void  getSymbolTypePrintout(symtabEntryType type, char * writeIn);
 void  writeSymboltable (symtabEntry * Symboltable, FILE * outputFile);

@@ -76,7 +76,7 @@ void getSymbolTypePrintout(symtabEntryType  type, char * writeIn){
 	}
 }
 
-void addSymboltableEntry (symtabEntry * Symboltable,
+void addSymboltableEntry (symtabEntry** Symboltable,
 						  char * name,
 						  symtabEntryType type,
 						  symtabEntryType internType,
@@ -104,15 +104,16 @@ void addSymboltableEntry (symtabEntry * Symboltable,
 	newSymtabEntry->vater = vater;
 	newSymtabEntry->parameter = parameter;
 	newSymtabEntry->next = 0;
-	
-	
-	if (!Symboltable){
-	//there is no entry in the Symboltable
-		theSymboltable = newSymtabEntry;
-	}else{
-	//there is at least one entry in the Symboltable
-		symtabEntry * symtabHelp = Symboltable;
-		while (symtabHelp->next){
+		
+	if (!(*Symboltable)){
+		DEBUG("Symbol table empty, initializing.");
+		//there is no entry in the Symboltable
+		(*Symboltable) = newSymtabEntry;
+	}
+	else {
+		//there is at least one entry in the Symboltable
+		symtabEntry * symtabHelp = (*Symboltable);
+		while (symtabHelp->next) {
 		//walks to the last entry of Symboltable
 			symtabHelp = symtabHelp->next;
 		}

@@ -1,12 +1,27 @@
 %{
 	#include <stdio.h>
+	#include "global.h"
 	
 	extern int yylineno;
 
-	void pr_debug(char *message, char *file, int lineno);
-	#define DEBUG(msg) (pr_debug(msg, __FILE__, __LINE__))
+	// global symbol table
+	symtabEntry* symbolTable;
+	
+	// offset relative to the beginning of the function where this variable will be stored
+	int memOffset;
+	#define OFFSET_INT 4
+	#define OFFSET_REAL 8
+			   
+	// global variable in which the current father (the context, for example the function) is saved
+	symtabEntry* symbolTableFather;
 %}
 //Bison declarations
+
+%union {
+	int intval;
+	float fval;
+	char string[1000];
+}
 
 %start programm
 
@@ -44,15 +59,18 @@
 
 
 programm
-    : function { printf("Program with single function"); }                 
-    | programm function { printf("Program with more functions"); }
+    : function { DEBUG("Program with single function"); }                 
+    | programm function { DEBUG("Program with more functions"); }
     ;
 
-
-
 function
-    : var_type id '(' parameter_list ')' ';' { DEBUG("Function prototype recognized\n"); }
-    | var_type id '(' parameter_list ')' function_body { DEBUG("Function body recognized\n"); }
+    : var_type id '(' parameter_list ')' ';'
+	{ 
+		DEBUG("Function prototype recognized");
+		addSymboltableEntry(&symbolTable, $<string>2, FUNC, NOP, memOffset, 0, 0, 0, symbolTableFather, 0);
+	}
+    
+	| var_type id '(' parameter_list ')' function_body { DEBUG("Function body recognized"); }
     ;
 
 function_body
@@ -67,8 +85,45 @@ declaration_list
 
 declaration
     : TYPE_INT id
-    | TYPE_FLOAT id
-    | declaration ',' id
+		{
+			DEBUG("Found integer variable.");
+			//$$ = INTEGER;	// necessary for declaration list
+			/* symbolTable: the global symbol table
+			   $2: two entries up the stack (in this case, this refers to the value of 'id', which is the name of the identifier, assigned to yylval in quadComp.l)
+			   INTEGER: type; from the enumeration 'symtabEntryType' (defined in global.h)
+               NOP: no idea why... 
+			   memOffset: offset relative to the beginning of the function where this variable will be stored
+			   0: no idea why...
+			   0: if we had arrays, this would be the first dimension
+			   0: if we had arrays, this would be the second dimension
+			   symbolTableFather: global variable in which the current father is saved
+			   0: this is not the table entry for a function, so there are no function parameters
+			*/
+			addSymboltableEntry(&symbolTable, $<string>2, INTEGER, NOP, memOffset, 0, 0, 0, symbolTableFather, 0);
+			memOffset += OFFSET_INT;
+		}
+
+	| TYPE_FLOAT id
+		{
+			DEBUG("Found floating-point variable.");
+			//$$ = REAL;	// necessary for declaration list
+			addSymboltableEntry(&symbolTable, $<string>2, REAL , NOP, memOffset, 0, 0, 0, symbolTableFather, 0);
+			memOffset += OFFSET_REAL;
+		}
+
+    | declaration ',' id	// such as 'int x, y, z;'
+    	{   /*
+			$$ = $1;
+			if ($1 == INTEGER) {
+				addSymboltableEntry(&symbolTable, $<string>3, INTEGER, NOP, memOffset, 0, 0, 0, symbolTableFather, 0);
+				memOffset += OFFSET_INT;
+			}
+			else if ($2 == REAL) {
+				addSymboltableEntry(&symbolTable, $<string>3, REAL, NOP, memOffset, 0, 0, 0, symbolTableFather, 0);
+				memOffset += OFFSET_REAL;
+			} */
+		}
+
     ;
 
 parameter_list
@@ -80,9 +135,9 @@ parameter_list
     ;
 
 var_type
-    : TYPE_INT { DEBUG("Int variable type\n"); }
-    | TYPE_VOID { DEBUG("Void variable type\n"); }
-    | TYPE_FLOAT { DEBUG("Float variable type\n"); }
+    : TYPE_INT { DEBUG("Int variable type"); }
+    | TYPE_VOID { DEBUG("Void variable type"); }
+    | TYPE_FLOAT { DEBUG("Float variable type"); }
     ;
 
 
@@ -168,9 +223,15 @@ int main(int argc, char **argv) {
 
     yylineno = 1;
 
-	printf("Superquad is now starting the parse process...\n");
+	DEBUG("Superquad is now starting the parse process...");
 
 	yyparse();
+
+	FILE* symFile;
+	symFile = fopen("ourSym.txt", "w");
+//	fputs(symFile, "blub\n");
+    writeSymboltable(symbolTable, symFile);
+
 	return 0;
 }
 
