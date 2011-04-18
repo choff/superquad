@@ -163,7 +163,9 @@ void pr_debug(char *message, char *file, int lineno) {
 	fprintf(stderr, "%s(%d): %s\n", file, lineno, message);
 }
 
-int main() {
+int main(int argc, char **argv) {
+	printf("Argument count is: %d", argc);
+
     yylineno = 1;
 
 	printf("Superquad is now starting the parse process...\n");

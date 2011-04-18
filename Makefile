@@ -2,8 +2,8 @@ all: clean	global.exe
 
 ################################################################
 
-global.exe: global.o quadComp_y.o lex.yy.o
-	gcc -g -o global.exe global.o quadComp_y.o lex.yy.o -lm -lfl
+global.exe: global.o quadComp_y.o lex.yy.o q_operations.o
+	gcc -g -o global.exe global.o quadComp_y.o q_operations.o lex.yy.o -lm -lfl
 
 #global.exe: global.o
 #	gcc -g -o global.exe global.o
@@ -16,6 +16,9 @@ global.o: global.c global.h
 
 quadComp_y.o : quadComp.tab.c quadComp.tab.h global.h
 	gcc -g -c quadComp.tab.c -o quadComp_y.o
+
+q_operations.o :
+	gcc -g -c q_operations.c -o q_operations.o
 
 quadComp.tab.c quadComp.tab.h : quadComp.y
 	bison -v -d quadComp.y
@@ -37,4 +40,4 @@ clean :
 	rm -f global.exe
 	rm -f Symboltable.out
 	rm -f Quadrupelcode.out
-	
+	rm -f q_operations.o
