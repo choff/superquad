@@ -1,4 +1,5 @@
 #include "q_operations.h"
+#include "q_identifier.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,12 +25,12 @@ struct q_op_list *q_op_list_create(struct q_op_list *op_list, size_t q_op_size) 
 }
 
 
-void q_op_assignment_init(struct q_op_assignment *assignment, char *dest,
-						  char *left_operand, enum q_arithmetic_operator arith_operator, char *right_operand) {
+void q_op_assignment_init(struct q_op_assignment *assignment, struct q_identifier *dest, struct q_identifier *left_operand, 
+                          enum q_arithmetic_operator arith_operator, struct q_identifier *right_operand) {
 	assignment->op.gen_code = q_op_assignment_gen_code;
 
-	strcpy(assignment->left_operand, left_operand);
-	strcpy(assignment->right_operand, right_operand);
+	assignment->left_operand = left_operand;
+	assignment->right_operand =  right_operand;
 	assignment->arith_operator = arith_operator;
 }
 
@@ -54,19 +55,19 @@ int q_op_assignment_gen_code(struct q_op *op, char *code_buf) {
 	struct q_op_assignment *assignment = (struct q_op_assignment *) op;
 
 	if (assignment->arith_operator == Q_ARITHMETIC_OP_NONE)
-		return sprintf(code_buf, "%s := %s", assignment->dest, assignment->left_operand);
+		return sprintf(code_buf, "%s := %s", assignment->dest->name, assignment->left_operand->name);
 	else
-		return sprintf(code_buf, "%s := %s %c %s", assignment->dest, assignment->left_operand,
-					   q_arithmetic_operator_to_string(assignment->arith_operator), assignment->right_operand);
+		return sprintf(code_buf, "%s := %s %c %s", assignment->dest->name, assignment->left_operand->name,
+					   q_arithmetic_operator_to_string(assignment->arith_operator), assignment->right_operand->name);
 }
 
 
-struct q_jump_condition *q_jump_condition_create(char *left_operand, enum q_relative_operator rel_operator, 
-												 char *right_operand) {
+struct q_jump_condition *q_jump_condition_create(struct q_identifier *left_operand, enum q_relative_operator rel_operator, 
+												 struct q_identifier *right_operand) {
 	struct q_jump_condition *cond = malloc(sizeof(struct q_jump_condition));
 	
-	strcpy(cond->left_operand, left_operand);
-	strcpy(cond->right_operand, right_operand);
+	cond->left_operand = left_operand;
+	cond->right_operand = right_operand;
 	cond->rel_operator = rel_operator;
 	
 	return cond;
@@ -97,8 +98,8 @@ char *q_relative_operator_to_string(enum q_relative_operator rel_op) {
 }
 
 int q_jump_condition_to_string(struct q_jump_condition *cond, char *code_buf) {
-	return sprintf(code_buf, "IF (%s %s %s)", cond->left_operand, q_relative_operator_to_string(cond->rel_operator),
-				   cond->right_operand);
+	return sprintf(code_buf, "IF (%s %s %s)", cond->left_operand->name, q_relative_operator_to_string(cond->rel_operator),
+				   cond->right_operand->name);
 }
 
 int q_op_jump_gen_code(struct q_op *op, char *code_buf) {
