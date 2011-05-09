@@ -41,3 +41,4 @@ clean :
 	rm -f Symboltable.out
 	rm -f Quadrupelcode.out
 	rm -f q_operations.o
+	rm -f q_identifier.o
