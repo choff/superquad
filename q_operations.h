@@ -44,10 +44,10 @@ struct q_jump_condition {
 };
 
 struct q_op_jump {
-	struct q_op op;
+	struct q_op op; /* Pointer to parent "class" */
 	
-	struct q_jump_condition *condition;
-	int target;
+	struct q_jump_condition *condition; /* Jump condition, NULL for unconditional jump */
+	int target; /* Index of target instruction */
 };
 
 struct q_op_list {
