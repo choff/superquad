@@ -27,3 +27,4 @@ typedef struct a_symtabEntry{
 void  addSymboltableEntry (symtabEntry** Symboltable,char * name,symtabEntryType type,symtabEntryType internType,int offset,int line,int index1,int index2,symtabEntry * vater,int parameter);
 void  getSymbolTypePrintout(symtabEntryType type, char * writeIn);
 void  writeSymboltable (symtabEntry * Symboltable, FILE * outputFile);
+symtabEntry* getSymboltableEntry(symtabEntry* Symboltable, char* name);

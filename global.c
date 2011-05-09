@@ -46,9 +46,11 @@ void writeSymboltable (symtabEntry * Symboltable, FILE * outputFile){
 		fprintf(outputFile, "%d\t\t",currentEntry->index1);
 		fprintf(outputFile, "%d\t\t",currentEntry->index2);
 		if(currentEntry->vater){
-			fprintf(outputFile, "%d\t\t",currentEntry->vater->number);
+//			fprintf(outputFile, "%d\t\t",currentEntry->vater->number);
+			fprintf(outputFile, "%s\t\t",currentEntry->vater->name);
 		}else{
-			fprintf(outputFile, "0\t\t");
+//			fprintf(outputFile, "0\t\t");
+			fprintf(outputFile, "None\t\t");
 		}
 		fprintf(outputFile, "%d\t\t\n",currentEntry->parameter);
 		
@@ -75,6 +77,24 @@ void getSymbolTypePrintout(symtabEntryType  type, char * writeIn){
 	default:       strcpy(writeIn,"        ")  ;break;
 	}
 }
+
+/* Find and return the symbol table entry by name. */
+symtabEntry* getSymboltableEntry (
+	symtabEntry* Symboltable,
+	char* name
+) {
+	while ( strcmp(Symboltable->name, name) ) {
+		if (Symboltable->next == NULL) {
+			// symbol does not exist in table
+			return NULL;
+		}
+		else {
+			Symboltable = Symboltable->next;
+		}
+	}
+	return Symboltable;
+}
+
 
 void addSymboltableEntry (symtabEntry** Symboltable,
 						  char * name,
@@ -124,7 +144,7 @@ void addSymboltableEntry (symtabEntry** Symboltable,
 
 
 
-
+/*
 int main_w (void){
 	FILE * outputFile;
 
@@ -150,4 +170,5 @@ int main_w (void){
 	
 	return 1;
 }
+*/
 

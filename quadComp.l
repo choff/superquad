@@ -29,7 +29,7 @@
 "int"	{ DEBUG("Int recognized"); return TYPE_INT; }
 "float"	{ DEBUG("Float recognized"); return TYPE_FLOAT; }
 
-[0-9]+.[0-9]+	{ yylval.fval = atof(yytext); return FLOAT_CONSTANT; }
+[0-9]+.[0-9]+	{ yylval.floatval = atof(yytext); return FLOAT_CONSTANT; }
 [0-9]+	{ yylval.intval = atoi(yytext); return INT_CONSTANT; }
 
 [a-zA-Z_][a-zA-Z0-9_]*	{ 
