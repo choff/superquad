@@ -1,5 +1,6 @@
 #include "q_operations.h"
-#include "q_identifier.h"
+// #include "q_identifier.h"
+#include "global.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,8 +26,8 @@ struct q_op_list *q_op_list_create(struct q_op_list *op_list, size_t q_op_size) 
 }
 
 
-void q_op_assignment_init(struct q_op_assignment *assignment, struct q_identifier *dest, struct q_identifier *left_operand, 
-                          enum q_arithmetic_operator arith_operator, struct q_identifier *right_operand) {
+void q_op_assignment_init(struct q_op_assignment *assignment, symtabEntry *dest, symtabEntry *left_operand, 
+                          enum q_arithmetic_operator arith_operator, symtabEntry *right_operand) {
 	assignment->op.gen_code = q_op_assignment_gen_code;
 
 	assignment->left_operand = left_operand;
@@ -62,8 +63,8 @@ int q_op_assignment_gen_code(struct q_op *op, char *code_buf) {
 }
 
 
-struct q_jump_condition *q_jump_condition_create(struct q_identifier *left_operand, enum q_relative_operator rel_operator, 
-												 struct q_identifier *right_operand) {
+struct q_jump_condition *q_jump_condition_create(symtabEntry *left_operand, enum q_relative_operator rel_operator, 
+												 symtabEntry *right_operand) {
 	struct q_jump_condition *cond = malloc(sizeof(struct q_jump_condition));
 	
 	cond->left_operand = left_operand;

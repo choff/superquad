@@ -1,7 +1,8 @@
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
-#endif /*GLOBAL_H_*/
+#include <stdlib.h>
+#include <stdio.h>
 
 void pr_debug(char *message, char *file, int lineno);
 #define DEBUG(msg) (pr_debug(msg, __FILE__, __LINE__))
@@ -28,3 +29,6 @@ void  addSymboltableEntry (symtabEntry** Symboltable,char * name,symtabEntryType
 void  getSymbolTypePrintout(symtabEntryType type, char * writeIn);
 void  writeSymboltable (symtabEntry * Symboltable, FILE * outputFile);
 symtabEntry* getSymboltableEntry(symtabEntry* Symboltable, char* name);
+
+#endif /*GLOBAL_H_*/
+
