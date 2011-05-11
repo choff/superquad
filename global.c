@@ -5,7 +5,10 @@
 
 
 // GLOBAL VARIABLES:
-symtabEntry * theSymboltable=0;    //pointer as a entry to the Symboltable, which is a linked list
+//symtabEntry * theSymboltable=0;    //pointer as a entry to the Symboltable, which is a linked list
+
+// offset relative to the beginning of a function where this variable will be stored
+int memOffset = 0;
 
 void writeSymboltable (symtabEntry * Symboltable, FILE * outputFile){
 //writes the Symboltable in the outFile formated in a table view 
@@ -14,50 +17,51 @@ void writeSymboltable (symtabEntry * Symboltable, FILE * outputFile){
 	fprintf (outputFile, "Nr\tName                    Type    Int_Typ Offset\tLine\tIndex1\tIndex2\tVater\tParameter\n");
 	fprintf (outputFile, "---------------------------------------------------------------------------------------------\n");
 	
-	
 	//variables
-	symtabEntry * currentEntry;  	//pointer for the current Symboltable entry for walking through the list
-	int j;							//help variable, to build a string with the same length
-	char helpString[21];			//string for formatted output
+	symtabEntry * currentEntry;  	// pointer for the current Symboltable entry for walking through the list
+	int j;							// help variable, to build a string with the same length
+	char helpString[21];			// string for formatted output
 	
-	
+	int i = 0;
 	currentEntry = Symboltable;
-	do{
-	//walks through the Symboltable
-		fprintf(outputFile, "%d:\t",currentEntry->number); 
-		
+	do {
+		//walks through the Symboltable
+		fprintf(outputFile, "%d:\t", currentEntry->number); 
 		 
-		strncpy(helpString,currentEntry->name,20);
-		for(j=19;j>=strlen(currentEntry->name);j--){
+//        if (i++ == 2) return 0;
+
+		strncpy(helpString, currentEntry->name,20);
+		for (j = 19; j >= strlen(currentEntry->name); j--) {
 		//loop for formating the output to file 
-			helpString[j]=' ';
+			helpString[j] = ' ';
 		}
-		helpString[20]=0;
-		fprintf(outputFile, "%s\t",helpString);
+		helpString[20] = 0;
+		fprintf(outputFile, "%s\t", helpString);
 		
-		getSymbolTypePrintout(currentEntry->type,helpString);
-		fprintf(outputFile, "%s",helpString);
+		getSymbolTypePrintout(currentEntry->type, helpString);
+		fprintf(outputFile, "%s", helpString);
 		
-		getSymbolTypePrintout(currentEntry->internType,helpString);
-		fprintf(outputFile, "%s",helpString);
+		getSymbolTypePrintout(currentEntry->internType, helpString);
+		fprintf(outputFile, "%s", helpString);
 		
-		fprintf(outputFile, "%d\t\t",currentEntry->offset);
-		fprintf(outputFile, "%d\t\t",currentEntry->line);
-		fprintf(outputFile, "%d\t\t",currentEntry->index1);
-		fprintf(outputFile, "%d\t\t",currentEntry->index2);
+		fprintf(outputFile, "%d\t\t", currentEntry->offset);
+		fprintf(outputFile, "%d\t\t", currentEntry->line);
+		fprintf(outputFile, "%d\t\t", currentEntry->index1);
+		fprintf(outputFile, "%d\t\t", currentEntry->index2);
 		if(currentEntry->vater){
-//			fprintf(outputFile, "%d\t\t",currentEntry->vater->number);
-			fprintf(outputFile, "%s\t\t",currentEntry->vater->name);
-		}else{
+//			fprintf(outputFile, "%d\t\t", currentEntry->vater->number);
+			fprintf(outputFile, "%s\t\t", currentEntry->vater->name);
+		}
+		else {
 //			fprintf(outputFile, "0\t\t");
 			fprintf(outputFile, "None\t\t");
 		}
-		fprintf(outputFile, "%d\t\t\n",currentEntry->parameter);
+		fprintf(outputFile, "%d\t\t\n", currentEntry->parameter);
 		
 		fflush(outputFile);
 		
-		currentEntry=currentEntry->next;
-	}while(currentEntry);
+		currentEntry = currentEntry->next;
+	} while (currentEntry);
 	
 }
 
@@ -80,23 +84,69 @@ void getSymbolTypePrintout(symtabEntryType  type, char * writeIn){
 
 /* Find and return the symbol table entry by name. */
 symtabEntry* getSymboltableEntry (
-	symtabEntry* Symboltable,
-	char* name
-) {
-	while ( strcmp(Symboltable->name, name) ) {
-		if (Symboltable->next == NULL) {
-			// symbol does not exist in table
-			return NULL;
+	symtabEntry* symbolTable,
+	char* name,
+	symtabEntry* father
+)
+{
+	while (symbolTable) {
+		int sameName = !strcmp(name, symbolTable->name);
+		int sameFather = symbolTable->vater == father;
+
+		if (sameName && sameFather) {
+			return symbolTable;
 		}
-		else {
-			Symboltable = Symboltable->next;
+        else {
+			symbolTable = symbolTable->next;
 		}
 	}
-	return Symboltable;
+	return symbolTable;
 }
 
 
-void addSymboltableEntry (symtabEntry** Symboltable,
+
+symtabEntry* addIntToSymtab(symtabEntry** symbolTable, char* name, symtabEntry* father)
+{
+//	char message[100];
+//	
+//	char* scope = father ? father->name : "global scope";
+//	sprintf(message, "Found integer variable in '%s'.", scope);
+////	sprintf(message, "Found integer variable.");
+//
+//	DEBUG(message);
+
+	/* symbolTable: the global symbol table
+	   $2: two entries up the stack (in this case, this refers to the value of 'id', which is the name of the identifier, assigned to yylval in quadComp.l)
+	   INTEGER: type; from the enumeration 'symtabEntryType' (defined in global.h)
+	   NOP: no idea why... 
+	   memOffset: offset relative to the beginning of the function where this variable will be stored
+	   0: no idea why...
+	   0: if we had arrays, this would be the first dimension
+	   0: if we had arrays, this would be the second dimension
+	   father: current father element
+	   0: this is not the table entry for a function, so there are no function parameters
+	*/
+	symtabEntry* newEntry = addSymboltableEntry(symbolTable, name, INTEGER, NOP, memOffset, 0, 0, 0, father, 0);
+	memOffset += OFFSET_INT;
+
+	return newEntry;
+}
+
+symtabEntry* addRealToSymtab(symtabEntry** symbolTable, char* name, symtabEntry* father)
+{
+//	char message[100];
+//	sprintf(message, "Found float variable in function '%s'.", father->name);
+//	DEBUG(message);
+
+	// explanation see documentation in function addIntToSymtab()
+	symtabEntry* newEntry = addSymboltableEntry(symbolTable, name, REAL, NOP, memOffset, 0, 0, 0, father, 0);
+	memOffset += OFFSET_REAL;
+
+	return newEntry;
+}
+
+// Adds an entry into the symbol table, returns the new entry.
+symtabEntry* addSymboltableEntry (symtabEntry** Symboltable,
 						  char * name,
 						  symtabEntryType type,
 						  symtabEntryType internType,
@@ -105,7 +155,7 @@ void addSymboltableEntry (symtabEntry** Symboltable,
 						  int index1,
 						  int index2,
 						  symtabEntry * vater,
-						  int parameter){
+						  int parameter) {
 	//adds a symbolEntry to the end of the Symboltable. If there global variable theSymboltable is not 
 	//initialized, this will be done with the first call of this function
 	
@@ -139,9 +189,19 @@ void addSymboltableEntry (symtabEntry** Symboltable,
 		}
 		symtabHelp->next = newSymtabEntry;
 	}
+
+//	return newSymtabEntry;
 }
 	
 
+void pr_debug(char *message, char *file, int lineno) {
+	if (file) {
+	    fprintf(stderr, "%s(%d): %s\n", file, lineno, message);
+	}
+	else {
+		fprintf(stderr, "%s\n", message);
+	}
+}
 
 
 /*

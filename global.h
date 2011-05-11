@@ -3,6 +3,12 @@
 
 #endif /*GLOBAL_H_*/
 
+// Memory needed by an int or a real, is added every time a variable is entered into the symbol table
+#define OFFSET_INT 4
+#define OFFSET_REAL 8
+
+extern int memOffset;
+
 void pr_debug(char *message, char *file, int lineno);
 #define DEBUG(msg) (pr_debug(msg, __FILE__, __LINE__))
 
@@ -24,7 +30,11 @@ typedef struct a_symtabEntry{
 	struct a_symtabEntry * next;
 } symtabEntry;
 
-void  addSymboltableEntry (symtabEntry** Symboltable,char * name,symtabEntryType type,symtabEntryType internType,int offset,int line,int index1,int index2,symtabEntry * vater,int parameter);
 void  getSymbolTypePrintout(symtabEntryType type, char * writeIn);
 void  writeSymboltable (symtabEntry * Symboltable, FILE * outputFile);
-symtabEntry* getSymboltableEntry(symtabEntry* Symboltable, char* name);
+
+// Symbol table manipulation functions
+symtabEntry*  addSymboltableEntry (symtabEntry** Symboltable,char * name,symtabEntryType type,symtabEntryType internType,int offset,int line,int index1,int index2,symtabEntry * vater,int parameter);
+symtabEntry* getSymboltableEntry(symtabEntry* Symboltable, char* name, symtabEntry* father);
+symtabEntry* addIntToSymtab(symtabEntry** symtab, char* name, symtabEntry* father);
+symtabEntry* addRealToSymtab(symtabEntry** symtab, char* name, symtabEntry* father);
