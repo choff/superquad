@@ -5,7 +5,7 @@ all: clean	global.exe
 gccOptions = -g -Wfatal-errors -O0
 
 global.exe: global.o quadComp_y.o lex.yy.o q_operations.o q_identifier.o
-	gcc -g -o global.exe global.o quadComp_y.o q_operations.o q_identifier.o lex.yy.o -lm -lfl
+	gcc -g -o global.exe global.o quadComp_y.o q_operations.o lex.yy.o -lm -lfl
 
 # -D_POSIX_SOURCE fixes a warning about allegedly implicit declaration of function 'fileno', see http://compilers.iecc.com/comparch/article/04-01-065
 lex.yy.o : lex.yy.c
@@ -19,9 +19,6 @@ quadComp_y.o : quadComp.tab.c quadComp.tab.h global.h
 
 q_operations.o :
 	gcc -g -c q_operations.c -o q_operations.o
-
-q_identifier.o:
-	gcc -g -c q_identifier.c -o q_identifier.o
 
 quadComp.tab.c quadComp.tab.h : quadComp.y
 	bison -v -d quadComp.y
