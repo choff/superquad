@@ -18,6 +18,7 @@
 %union {
 	int intval;
 	float floatval;
+	const struct variable_type *var_type;
 	char string[1000];
 }
 
@@ -27,8 +28,7 @@
 
 %token RETURN
 %token TYPE_VOID
-%token TYPE_FLOAT
-%token TYPE_INT
+%token VAR_TYPE
 
 %token IDENTIFIER
 
@@ -53,8 +53,9 @@
 %left '*' '/' '%'
 %left INC_OP DEC_OP U_PLUS U_MINUS '!' 
 
+%type <var_type> VAR_TYPE
 %type <string> IDENTIFIER
-%type <intval> declaration 
+%type <var_type> declaration 
 %type <intval> parameter_list 
 %type <string> id
 
@@ -113,28 +114,17 @@ declaration_list
     ;
 
 declaration
-    : TYPE_INT id
+    : VAR_TYPE id
 		{
-			$$ = INTEGER;	// necessary for declaration list
+			$$ = $1;	// necessary for declaration list
 			// $<string>2: two entries up the stack (in this case, this refers to the value of 'id', which is the name of the identifier, assigned to yylval in quadComp.l)
-			addIntToSymtab(&symbolTable, $<string>2, symbolTableFather);
-		}
-
-	| TYPE_FLOAT id
-		{
-			$$ = REAL;	// necessary for declaration list
-			addRealToSymtab(&symbolTable, $<string>2, symbolTableFather);
+			addVarToSymtab(&symbolTable, $<string>2, $1, symbolTableFather);
 		}
 
     | declaration ',' id	// such as 'int x, y, z;'
-    	{   
+    	{
 			$$ = $1;
-			if ($1 == INTEGER) {
-				addIntToSymtab(&symbolTable, $<string>3, symbolTableFather);
-			}
-			else if ($1 == REAL) {
-				addRealToSymtab(&symbolTable, $<string>3, symbolTableFather);
-			} 
+			addVarToSymtab(&symbolTable, $<string>3, $1, symbolTableFather);
 		}
 
     ;
@@ -148,65 +138,38 @@ declaration
 	for the function's symbol table entry.
 */
 parameter_list
-    : TYPE_INT id
+    : VAR_TYPE id
 		{
 			$$ = 1;
 			symtabEntry* father = getSymboltableEntry(symbolTable, $<string>-2, NULL);
 			if ( ! getSymboltableEntry(symbolTable, $<string>2, father) ) {
-				symtabEntry* newEntry = addIntToSymtab(&symbolTable, $<string>2, father);
+				symtabEntry* newEntry = addVarToSymtab(&symbolTable, $<string>2, $1, father);
 				newEntry->parameter = 1;
 			}
 			else {
 				// memOffset has to be advanced anyway
-				memOffset += OFFSET_INT;
+				memOffset += $1->size;
 			}
 		}
-    | TYPE_FLOAT id
-		{
-			$$ = 1;
-			symtabEntry* father = getSymboltableEntry(symbolTable, $<string>-2, NULL);
-			if ( ! getSymboltableEntry(symbolTable, $<string>2, father) ) {
-				symtabEntry* newEntry = addRealToSymtab(&symbolTable, $<string>2, father);
-				newEntry->parameter = 1;
-			}
-			else {
-				// memOffset has to be advanced anyway
-				memOffset += OFFSET_REAL;
-			}
-		}
-    | parameter_list ',' TYPE_INT id
+    | parameter_list ',' VAR_TYPE id
 		{
 			$$ = $1 + 1;
 			symtabEntry* father = getSymboltableEntry(symbolTable, $<string>-2, NULL);
 			if ( ! getSymboltableEntry(symbolTable, $<string>4, father) ) {
-				symtabEntry* newEntry = addIntToSymtab(&symbolTable, $<string>4, father);
+				symtabEntry* newEntry = addVarToSymtab(&symbolTable, $<string>4, $3, father);
 				newEntry->parameter = $$;
 			}
 			else {
 				// memOffset has to be advanced anyway
-				memOffset += OFFSET_INT;
-			}
-		}
-    | parameter_list ',' TYPE_FLOAT id
-		{
-			$$ = $1 + 1;
-			symtabEntry* father = getSymboltableEntry(symbolTable, $<string>-2, NULL);
-			if ( ! getSymboltableEntry(symbolTable, $<string>4, father) ) {
-				symtabEntry* newEntry = addRealToSymtab(&symbolTable, $<string>4, father);
-				newEntry->parameter = $$;
-			}
-			else {
-				// memOffset has to be advanced anyway
-				memOffset += OFFSET_REAL;
+				memOffset += $3->size;
 			}
 		}
     | TYPE_VOID	{ $$ = 0; }
     ;
 
 var_type
-    : TYPE_INT { DEBUG("Int variable type"); }
+    : VAR_TYPE { DEBUG("Standart variable type"); }
     | TYPE_VOID { DEBUG("Void variable type"); }
-    | TYPE_FLOAT { DEBUG("Float variable type"); }
     ;
 
 

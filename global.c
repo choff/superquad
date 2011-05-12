@@ -3,12 +3,21 @@
 #include <string.h>
 #include "global.h"
 
+const struct variable_type type_integer = {
+	SIZE_INT,
+	INTEGER
+};
 
-// GLOBAL VARIABLES:
+const struct variable_type type_real = {
+	SIZE_REAL,
+	REAL
+};
+
 //symtabEntry * theSymboltable=0;    //pointer as a entry to the Symboltable, which is a linked list
 
 // offset relative to the beginning of a function where this variable will be stored
 int memOffset = 0;
+
 
 void writeSymboltable (symtabEntry * Symboltable, FILE * outputFile){
 //writes the Symboltable in the outFile formated in a table view 
@@ -105,19 +114,19 @@ symtabEntry* getSymboltableEntry (
 
 
 
-symtabEntry* addIntToSymtab(symtabEntry** symbolTable, char* name, symtabEntry* father)
+symtabEntry* addVarToSymtab(symtabEntry** symbolTable, char* name, const struct variable_type* type, symtabEntry* father)
 {
 //	char message[100];
 //	
 //	char* scope = father ? father->name : "global scope";
 //	sprintf(message, "Found integer variable in '%s'.", scope);
 ////	sprintf(message, "Found integer variable.");
-//
+//-g
 //	DEBUG(message);
 
 	/* symbolTable: the global symbol table
 	   $2: two entries up the stack (in this case, this refers to the value of 'id', which is the name of the identifier, assigned to yylval in quadComp.l)
-	   INTEGER: type; from the enumeration 'symtabEntryType' (defined in global.h)
+	   type->symtabType: type; from the enumeration 'symtabEntryType' (defined in global.h)
 	   NOP: no idea why... 
 	   memOffset: offset relative to the beginning of the function where this variable will be stored
 	   0: no idea why...
@@ -126,21 +135,8 @@ symtabEntry* addIntToSymtab(symtabEntry** symbolTable, char* name, symtabEntry* 
 	   father: current father element
 	   0: this is not the table entry for a function, so there are no function parameters
 	*/
-	symtabEntry* newEntry = addSymboltableEntry(symbolTable, name, INTEGER, NOP, memOffset, 0, 0, 0, father, 0);
-	memOffset += OFFSET_INT;
-
-	return newEntry;
-}
-
-symtabEntry* addRealToSymtab(symtabEntry** symbolTable, char* name, symtabEntry* father)
-{
-//	char message[100];
-//	sprintf(message, "Found float variable in function '%s'.", father->name);
-//	DEBUG(message);
-
-	// explanation see documentation in function addIntToSymtab()
-	symtabEntry* newEntry = addSymboltableEntry(symbolTable, name, REAL, NOP, memOffset, 0, 0, 0, father, 0);
-	memOffset += OFFSET_REAL;
+	symtabEntry* newEntry = addSymboltableEntry(symbolTable, name, type->symtabType, NOP, memOffset, 0, 0, 0, father, 0);
+	memOffset += type->size;
 
 	return newEntry;
 }

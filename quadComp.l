@@ -26,8 +26,8 @@
 "return"	{return RETURN; }
 "while"	{ return WHILE; }
 "do"	{ return DO; }
-"int"	{ DEBUG("Int recognized"); return TYPE_INT; }
-"float"	{ DEBUG("Float recognized"); return TYPE_FLOAT; }
+"int"	{ DEBUG("Int recognized"); yylval.var_type = &type_integer; return VAR_TYPE; }
+"float"	{ DEBUG("Float recognized"); yylval.var_type = &type_real; return VAR_TYPE; }
 
 [0-9]+.[0-9]+	{ yylval.floatval = atof(yytext); return FLOAT_CONSTANT; }
 [0-9]+	{ yylval.intval = atoi(yytext); return INT_CONSTANT; }
