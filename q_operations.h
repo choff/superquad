@@ -2,7 +2,6 @@
 #define Q_OPERATIONS_H
 #include "global.h"
 #include <stdlib.h>
-#include <stdbool.h>
 
 
 struct q_op {

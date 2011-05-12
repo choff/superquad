@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
 char q_arithmetic_operator_to_string(enum q_arithmetic_operator);
 int q_op_assignment_gen_code(struct q_op *op, char *code_buf);
