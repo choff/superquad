@@ -18,6 +18,9 @@ const struct variable_type type_real = {
 // offset relative to the beginning of a function where this variable will be stored
 int memOffset = 0;
 
+// Counter for temporary variables. Used for generating unique temp variable names.
+int tempVarCnt = 0;
+
 
 void writeSymboltable (symtabEntry * Symboltable, FILE * outputFile){
 //writes the Symboltable in the outFile formated in a table view 
@@ -113,6 +116,13 @@ symtabEntry* getSymboltableEntry (
 }
 
 
+/* Creates a new temporary variable with pseudo-random name and adds it to the symbol table */
+symtabEntry* getTempVariable(symtabEntry** symbolTable, char* name, const struct variable_type* type, symtabEntry* father)
+{
+	char tempVarName [10];
+	sprintf(tempVarName, "H%i", tempVarCnt++);
+	return addVarToSymtab(symbolTable, tempVarName, type, father);
+}
 
 symtabEntry* addVarToSymtab(symtabEntry** symbolTable, char* name, const struct variable_type* type, symtabEntry* father)
 {

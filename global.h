@@ -52,5 +52,6 @@ void  writeSymboltable (symtabEntry * Symboltable, FILE * outputFile);
 symtabEntry* addSymboltableEntry (symtabEntry** Symboltable,char * name,symtabEntryType type,symtabEntryType internType,int offset,int line,int index1,int index2,symtabEntry * vater,int parameter);
 symtabEntry* getSymboltableEntry(symtabEntry* Symboltable, char* name, symtabEntry* father);
 symtabEntry* addVarToSymtab(symtabEntry** symbolTable, char* name, const struct variable_type* type, symtabEntry* father);
+symtabEntry* getTempVariable(symtabEntry** symbolTable, char* name, const struct variable_type* type, symtabEntry* father);
 
 #endif /*GLOBAL_H_*/
