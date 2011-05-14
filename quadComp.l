@@ -1,6 +1,7 @@
 %option noyywrap
 %{
 	#include "global.h"
+	#include "q_operations.h"
 	#include "quadComp.tab.h"
 %}
 
@@ -19,6 +20,8 @@
 "<<"	{ return SHIFTLEFT; }
 
 "="		{ DEBUG("Assign recognized"); return ASSIGN; }
+
+"++"	{ return INC_OP; }
 
 "void"	{ return TYPE_VOID; }
 "if"	{ return IF; }
@@ -42,7 +45,7 @@
 	return IDENTIFIER;
 }
 
-[{}()[\];,\.<>\/\*]	{return *yytext;}
+[{}()[\];,\.<>\/\*+-]	{return *yytext;}
 
 . { } // Filter all other characters.
 %%

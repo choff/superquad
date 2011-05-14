@@ -13,6 +13,8 @@ int main (void){
 	variable_1 = 1;
 	variable_2 = 2;
 	
+	variable_3 = variable_1 + variable_3;
+	
 	while (variable_1 <= 10 && 1){
 	/*this loop runs how many times?*/
 		
@@ -32,7 +34,6 @@ int main (void){
 
 float questionmark (int x, int y){
 //what makes this function
-
 	float result;
 	
 	do{

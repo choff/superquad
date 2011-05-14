@@ -1,7 +1,11 @@
 %{
 	#include <stdio.h>
+	#include <string.h>
 	#include "global.h"
+	#include "q_operations.h"
 	
+	extern int yylex(void);
+	extern void yyerror(const char* s);
 	extern int yylineno;
 
 	// global symbol table
@@ -19,6 +23,7 @@
 	int intval;
 	float floatval;
 	const struct variable_type *var_type;
+	struct q_operand operand;
 	char string[1000];
 }
 
@@ -54,10 +59,14 @@
 %left INC_OP DEC_OP U_PLUS U_MINUS '!' 
 
 %type <var_type> VAR_TYPE
+%type <intval> INT_CONSTANT
+%type <floatval> FLOAT_CONSTANT
+
 %type <string> IDENTIFIER
 %type <var_type> declaration 
 %type <intval> parameter_list 
 %type <string> id
+%type <operand> expression
 
 %%    // grammar rules
 
@@ -208,7 +217,18 @@ assignment
     ;
 
 expression
-    : INC_OP expression                        
+    : INC_OP expression {
+		if ($2.type == OPD_TYPE_LITERAL) {
+			fprintf(stderr, "Cannot pre-increment a literal value.\n");
+			YYABORT;
+		}
+
+		// Allocate space for a new quadrupel code instruction at the end of the instruction stream
+		struct q_op_assignment *ass_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
+		q_op_assignment_init(ass_op, $2.data.varEntry, $2, Q_ARITHMETIC_OP_ADD, (struct q_operand) literal_one);
+
+		$$ = $2;
+	}
     | DEC_OP expression                        
     | expression LOG_OR           expression   
     | expression LOG_AND          expression   
@@ -219,20 +239,50 @@ expression
     | expression '>'              expression   
     | expression '<'              expression   
     | expression SHIFTLEFT        expression   
-    | expression '+'              expression   
+    | expression '+'              expression {
+		struct q_op_assignment *ass_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
+
+		symtabEntry *tempVarEntry = getTempVariable(&symbolTable, q_op_assignment_get_result_type($1, $3), symbolTableFather);
+		$$ = q_operand_init_variable(tempVarEntry);
+
+		q_op_assignment_init(ass_op, tempVarEntry, $1, Q_ARITHMETIC_OP_ADD, $3);
+	}
     | expression '-'              expression   
     | expression '*'              expression   
     | expression '/'              expression   
     | expression '%'              expression   
-    | '!' expression                           
+    | '!' expression                           {
+		//struct q_jump_condition cond
+	}
     | '+' expression %prec U_PLUS              
     | '-' expression %prec U_MINUS             
-    | FLOAT_CONSTANT
-    | INT_CONSTANT
+    | FLOAT_CONSTANT {
+		DEBUG("Float constant recognized");
+
+		$$.type = OPD_TYPE_LITERAL;
+		$$.data.literal.type = &type_real;
+		$$.data.literal.value.float_value = $1;
+	}
+    | INT_CONSTANT {
+		DEBUG("Int constant recognized");
+
+		$$.type = OPD_TYPE_LITERAL;
+		$$.data.literal.type = &type_integer;
+		$$.data.literal.value.int_value = $1;
+	}
     | '(' expression ')'                       
     | id '(' exp_list ')'                      
     | id '('  ')'                              
-    | id
+    | id {
+		// Lookup identifier in symbol table
+		symtabEntry *entry = getSymboltableEntryInScope(symbolTable, symbolTableFather, $1);
+		if (!entry) {
+			fprintf(stderr, "In function %s: Variable not declared: %s\n", symbolTableFather->name, $1);
+			YYABORT;
+		}
+		
+		$$ = q_operand_init_variable(entry);
+	}
     ;
 
 exp_list
@@ -241,7 +291,7 @@ exp_list
     ;
 
 id
-    : IDENTIFIER { /*DEBUG("IDENTIFIER:"); DEBUG($1); strcpy($$, $1);*/ }
+    : IDENTIFIER { strcpy($$, $1); }
     ;
     
 %%
@@ -259,10 +309,11 @@ int main(int argc, char **argv) {
 	symFile = fopen("ourSym.txt", "w");
 //	fputs("blub\n", symFile);
     writeSymboltable(symbolTable, symFile);
+	q_op_gen_code(stdout);
 
 	return 0;
 }
 
-yyerror(const char* s)  {
+void yyerror(const char* s)  {
 	printf("%s in line %d.\n", s, yylineno);
 }

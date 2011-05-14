@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 #include "global.h"
 
 const struct variable_type type_integer = {
@@ -115,9 +116,37 @@ symtabEntry* getSymboltableEntry (
 	return symbolTable;
 }
 
+/*
+ * Looks for a symbol table entry named "name" in the scope of the specified symbol table "context"
+ */
+symtabEntry* getSymboltableEntryInScope(symtabEntry *symbolTable, symtabEntry *context, const char* name) {
+	symtabEntry *curr_symbol = symbolTable;
+	
+	while (curr_symbol) {
+		if (strcmp(name, curr_symbol->name) == 0) {
+			// Determine if the current identifier is also within scope of symbol table "context"
+			symtabEntry *curr_context = context;
+			
+			while(true) {
+				if (curr_context == curr_symbol->vater)
+					return curr_symbol;
+				
+				if (curr_context == NULL)
+					break;
+				
+				curr_context = curr_context->vater;
+			}
+		}
+		
+		curr_symbol = curr_symbol->next;
+	}
+	
+	return NULL;
+}
+
 
 /* Creates a new temporary variable with pseudo-random name and adds it to the symbol table */
-symtabEntry* getTempVariable(symtabEntry** symbolTable, char* name, const struct variable_type* type, symtabEntry* father)
+symtabEntry* getTempVariable(symtabEntry** symbolTable, const struct variable_type* type, symtabEntry* father)
 {
 	char tempVarName [10];
 	sprintf(tempVarName, "H%i", tempVarCnt++);
@@ -196,17 +225,7 @@ symtabEntry* addSymboltableEntry (symtabEntry** Symboltable,
 		symtabHelp->next = newSymtabEntry;
 	}
 
-//	return newSymtabEntry;
-}
-	
-
-void pr_debug(char *message, char *file, int lineno) {
-	if (file) {
-	    fprintf(stderr, "%s(%d): %s\n", file, lineno, message);
-	}
-	else {
-		fprintf(stderr, "%s\n", message);
-	}
+	return newSymtabEntry;
 }
 
 

@@ -8,8 +8,7 @@ extern const struct variable_type type_integer;
 extern const struct variable_type type_real;
 extern int memOffset;
 
-void pr_debug(char *message, char *file, int lineno);
-#define DEBUG(msg) (pr_debug(msg, __FILE__, __LINE__))
+#define DEBUG(msg) (fprintf(stderr, "%s(%d): %s\n", __FILE__, __LINE__, msg))
 
 
 typedef enum symtab_EntryType {INTEGER, REAL, BOOL, PROC, NOP, ARR, FUNC, PROG, PRG_PARA}
@@ -51,7 +50,8 @@ void  writeSymboltable (symtabEntry * Symboltable, FILE * outputFile);
 // Symbol table manipulation functions
 symtabEntry* addSymboltableEntry (symtabEntry** Symboltable,char * name,symtabEntryType type,symtabEntryType internType,int offset,int line,int index1,int index2,symtabEntry * vater,int parameter);
 symtabEntry* getSymboltableEntry(symtabEntry* Symboltable, char* name, symtabEntry* father);
+symtabEntry* getSymboltableEntryInScope(symtabEntry *symbolTable, symtabEntry *context, const char* name);
 symtabEntry* addVarToSymtab(symtabEntry** symbolTable, char* name, const struct variable_type* type, symtabEntry* father);
-symtabEntry* getTempVariable(symtabEntry** symbolTable, char* name, const struct variable_type* type, symtabEntry* father);
+symtabEntry* getTempVariable(symtabEntry** symbolTable, const struct variable_type* type, symtabEntry* father);
 
 #endif /*GLOBAL_H_*/
