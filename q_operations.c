@@ -226,8 +226,10 @@ int q_op_jump_gen_code(struct q_op *op, char *code_buf) {
 
 void q_op_gen_code(FILE *output_file) {
 	char code_buf [200];
+	int instr_idx = 0;
+	
 	for (struct q_op_list *instr = first_instruction; instr != NULL; instr = instr->next) {
 		instr->op.gen_code(&instr->op, code_buf);
-		fprintf(output_file, "%s\n", code_buf);
+		fprintf(output_file, "%d: %s\n", instr_idx++, code_buf);
 	}
 }
