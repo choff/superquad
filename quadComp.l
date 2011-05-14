@@ -21,6 +21,7 @@
 
 "="		{ DEBUG("Assign recognized"); return ASSIGN; }
 
+"--"	{ return DEC_OP; }
 "++"	{ return INC_OP; }
 
 "void"	{ return TYPE_VOID; }

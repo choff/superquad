@@ -229,16 +229,46 @@ expression
 
 		$$ = $2;
 	}
-    | DEC_OP expression                        
-    | expression LOG_OR           expression   
-    | expression LOG_AND          expression   
-    | expression NOT_EQUAL        expression   
-    | expression EQUAL            expression   
-    | expression GREATER_OR_EQUAL expression   
-    | expression LESS_OR_EQUAL    expression   
-    | expression '>'              expression   
-    | expression '<'              expression   
-    | expression SHIFTLEFT        expression   
+    | DEC_OP expression                      {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression LOG_OR           expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression LOG_AND          expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression NOT_EQUAL        expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression EQUAL            expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression GREATER_OR_EQUAL expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression LESS_OR_EQUAL    expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression '>'              expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression '<'              expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression SHIFTLEFT        expression {
+		// TODO
+		$$ = literal_one;
+	}
     | expression '+'              expression {
 		struct q_op_assignment *ass_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
 
@@ -247,15 +277,34 @@ expression
 
 		q_op_assignment_init(ass_op, tempVarEntry, $1, Q_ARITHMETIC_OP_ADD, $3);
 	}
-    | expression '-'              expression   
-    | expression '*'              expression   
-    | expression '/'              expression   
-    | expression '%'              expression   
-    | '!' expression                           {
-		//struct q_jump_condition cond
+    | expression '-'              expression {
+		// TODO
+		$$ = literal_one;
 	}
-    | '+' expression %prec U_PLUS              
-    | '-' expression %prec U_MINUS             
+    | expression '*'              expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression '/'              expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | expression '%'              expression {
+		// TODO
+		$$ = literal_one;
+	}
+    | '!' expression                         {
+		// TODO
+		$$ = literal_one;
+	}
+    | '+' expression %prec U_PLUS            {
+		// TODO
+		$$ = literal_one;
+	}
+    | '-' expression %prec U_MINUS           {
+		// TODO
+		$$ = literal_one;
+	}
     | FLOAT_CONSTANT {
 		DEBUG("Float constant recognized");
 
@@ -270,9 +319,18 @@ expression
 		$$.data.literal.type = &type_integer;
 		$$.data.literal.value.int_value = $1;
 	}
-    | '(' expression ')'                       
-    | id '(' exp_list ')'                      
-    | id '('  ')'                              
+    | '(' expression ')'                     {
+		// TODO
+		$$ = literal_one;
+	}
+    | id '(' exp_list ')'                    {
+		// TODO
+		$$ = literal_one;
+	}
+    | id '('  ')'                            {
+		// TODO
+		$$ = literal_one;
+	}
     | id {
 		// Lookup identifier in symbol table
 		symtabEntry *entry = getSymboltableEntryInScope(symbolTable, symbolTableFather, $1);
