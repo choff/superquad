@@ -4,6 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+const struct q_operand literal_false = {
+	OPD_TYPE_LITERAL,
+	{
+		.literal = {
+			&type_integer,
+			{ .int_value = 0 }
+		}
+	}
+};
+
 const struct q_operand literal_one = {
 	OPD_TYPE_LITERAL,
 	{
@@ -42,7 +52,7 @@ struct q_op *q_op_list_add(size_t q_op_size) {
 	return &(last_instruction->op);
 }
 
-int q_op_get_list_get_instr_count() {
+int q_op_list_get_instr_count() {
 	return instruction_count;
 }
 
@@ -58,6 +68,10 @@ struct q_op_list *q_op_list_create(struct q_op_list *op_list, size_t q_op_size) 
 		op_list->next = result;
 	
 	return result;
+}
+
+void q_op_assignment_init_simple(struct q_op_assignment *assignment, symtabEntry *dest, struct q_operand operand) {
+	q_op_assignment_init(assignment, dest, operand, Q_ARITHMETIC_OP_NONE, literal_false);
 }
 
 void q_op_assignment_init(struct q_op_assignment *assignment, symtabEntry *dest, struct q_operand left_operand, 
@@ -206,7 +220,7 @@ int q_op_jump_gen_code(struct q_op *op, char *code_buf) {
 		*(pos++) = ' ';
 	}
 	
-	pos += sprintf(code_buf, "GOTO %d", jmp_op->target);
+	pos += sprintf(pos, "GOTO %d", jmp_op->target);
 	return (code_buf - pos);
 }
 

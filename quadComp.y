@@ -294,8 +294,29 @@ expression
 		$$ = literal_one;
 	}
     | '!' expression                         {
-		// TODO
-		$$ = literal_one;
+		// Initialize the return variable
+		symtabEntry *tempVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(tempVarEntry);
+
+		// if (expr == false) goto [instrCount + 1]
+		struct q_jump_condition *jump_when_false_cond = q_jump_condition_create($2, Q_RELATIVE_OP_EQUAL, literal_false);
+		struct q_op_jump *jump_when_false_instr = (struct q_op_jump *) q_op_list_add(sizeof(struct q_op_jump));
+		q_op_jump_init(jump_when_false_instr, jump_when_false_cond, q_op_list_get_instr_count() + 2);
+
+		/* Only executed if expr is false
+		 * temp = 1  ; Return true
+		 */
+		struct q_op_assignment *ret_true_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
+		q_op_assignment_init_simple(ret_true_op, tempVarEntry, literal_one);
+
+		struct q_op_jump *jump_to_end_instr = (struct q_op_jump *) q_op_list_add(sizeof(struct q_op_jump));
+		q_op_jump_init(jump_to_end_instr, NULL, q_op_list_get_instr_count() + 1);
+
+		/* Only executes if expr is true
+		 * temp = 0  ; return false
+		 */
+		struct q_op_assignment *ret_false_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
+		q_op_assignment_init_simple(ret_false_op, tempVarEntry, literal_false);
 	}
     | '+' expression %prec U_PLUS            {
 		// TODO

@@ -46,7 +46,7 @@
 	return IDENTIFIER;
 }
 
-[{}()[\];,\.<>\/\*+-]	{return *yytext;}
+[!{}()[\];,\.<>\/\*+-]	{return *yytext;}
 
 . { } // Filter all other characters.
 %%
