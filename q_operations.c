@@ -96,6 +96,13 @@ void q_instr_add(enum q_instruction_type type, ...) {
 	va_end(arg_list);
 }
 
+void q_instr_add_rel(symtabEntry *result, struct q_operand opd1, enum q_relative_operator relop, struct q_operand opd2) {
+	q_instr_add(Q_INSTR_TYPE_COND_JUMP, q_jump_condition_create(opd1, relop, opd2), q_op_list_get_instr_count() + 3);
+	q_instr_add(Q_INSTR_TYPE_ASSIGN, result, Q_FALSE);
+	q_instr_add(Q_INSTR_TYPE_JUMP, q_op_list_get_instr_count() + 2);
+	q_instr_add(Q_INSTR_TYPE_ASSIGN, result, Q_TRUE);
+}
+
 /*
  * Appends a new quadrupel code instruction to the end of the instruction list.
  * q_op_size: sizeof(...), where ... is the type of the instruction to be added

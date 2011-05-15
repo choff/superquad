@@ -100,6 +100,7 @@ extern const struct q_operand literal_one;
 
 int q_op_list_get_instr_count();
 void q_instr_add(enum q_instruction_type type, ...);
+void q_instr_add_rel(symtabEntry *result, struct q_operand opd1, enum q_relative_operator relop, struct q_operand opd2);
 struct q_op *q_op_list_add(size_t q_op_size);
 struct q_op_list *q_op_list_create(struct q_op_list *op_list, size_t q_op_size);
 

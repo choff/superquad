@@ -265,33 +265,40 @@ expression
 		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_FALSE);
 	}
     | expression NOT_EQUAL        expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *result = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(result);
+
+		q_instr_add_rel(result, $1, Q_RELATIVE_OP_NOT_EQUAL, $3);
 	}
     | expression EQUAL            expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *result = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(result);
+
+		q_instr_add_rel(result, $1, Q_RELATIVE_OP_EQUAL, $3);
 	}
     | expression GREATER_OR_EQUAL expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *result = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(result);
+
+		q_instr_add_rel(result, $1, Q_RELATIVE_OP_GREATER_EQUAL, $3);
 	}
     | expression LESS_OR_EQUAL    expression {
-		symtabEntry *retVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
-		$$ = q_operand_init_variable(retVarEntry);
+		symtabEntry *result = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(result);
 
-		q_instr_add(Q_INSTR_TYPE_COND_JUMP, q_jump_condition_create($1, Q_RELATIVE_OP_LOWER_EQUAL, $3), q_op_list_get_instr_count() + 3);
-		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_FALSE);
-		q_instr_add(Q_INSTR_TYPE_JUMP, q_op_list_get_instr_count() + 2);
-		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_TRUE);
+		q_instr_add_rel(result, $1, Q_RELATIVE_OP_LOWER_EQUAL, $3);
 	}
     | expression '>'              expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *result = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(result);
+
+		q_instr_add_rel(result, $1, Q_RELATIVE_OP_GREATER, $3);
 	}
     | expression '<'              expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *result = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(result);
+
+		q_instr_add_rel(result, $1, Q_RELATIVE_OP_LOWER, $3);
 	}
     | expression SHIFTLEFT        expression {
 		// TODO
