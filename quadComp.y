@@ -67,6 +67,8 @@
 %type <intval> parameter_list 
 %type <string> id
 %type <operand> expression
+%type <operand> assignment
+%type <intval> stmt_no_marker
 
 %%    // grammar rules
 
@@ -199,20 +201,26 @@ matched_statement
     | RETURN ';'                                                 
     | RETURN assignment ';'                                                  
     | WHILE '(' assignment ')' matched_statement                             
-    | DO statement WHILE '(' assignment ')' ';'                              
+    | DO stmt_no_marker statement WHILE '(' assignment ')' ';'                              {
+		// Jump to head of loop if "assignment" evaluated to "true"
+		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_TRUE($6), $2);
+	}
     | '{' statement_list '}'                                                 
     | '{' '}'                                                                                                                                                                                       
     ;
 
 unmatched_statement
-    : IF '(' assignment ')' statement                       
+    : IF '(' assignment ')' statement
     | WHILE '(' assignment ')' unmatched_statement          
     | IF '(' assignment ')' matched_statement ELSE unmatched_statement 
     ;
 
 
 assignment
-    : expression                 
+    : expression                    {
+		// return value of the expression
+		$$ = $1;
+	}
     | id ASSIGN          expression { 
 		DEBUG("Assignment recognized");
 
@@ -223,6 +231,9 @@ assignment
 			YYABORT;
 		}
 		q_instr_add(Q_INSTR_TYPE_ASSIGN, symtabEntry, $3);
+
+		// return the value that was assigned
+		$$ = $3;
 	}
     ;
 
@@ -391,6 +402,11 @@ exp_list
 id
     : IDENTIFIER { strcpy($$, $1); }
     ;
+
+stmt_no_marker
+	: {
+		$$ = q_op_list_get_instr_count();
+	}
     
 %%
 
