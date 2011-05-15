@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
-const struct q_operand literal_false = {
+const struct q_operand literal_zero = {
 	OPD_TYPE_LITERAL,
 	{
 		.literal = {
@@ -38,6 +39,63 @@ struct q_op_list *first_instruction = NULL;
 struct q_op_list *last_instruction = NULL;
 int instruction_count = 0;
 
+/* Adds an instruction of type "type" to the instruction list.
+ * Depending on the type of instruction, additional parameters have to be provided in the
+ * varargs section */
+void q_instr_add(enum q_instruction_type type, ...) {
+	struct q_op *op;
+	char code_buf[100];
+
+	va_list arg_list;
+	va_start(arg_list, type);
+	
+	switch(type) {
+		case Q_INSTR_TYPE_ASSIGN:
+			op = q_op_list_add(sizeof(struct q_op_assignment));
+			
+			op->gen_code = q_op_assignment_gen_code;
+			
+			((struct q_op_assignment *) op)->dest = va_arg(arg_list, symtabEntry *);
+			((struct q_op_assignment *) op)->left_operand = va_arg(arg_list, struct q_operand);
+			((struct q_op_assignment *) op)->arith_operator = Q_ARITHMETIC_OP_NONE;
+
+			break;
+		case Q_INSTR_TYPE_CALC:
+			op = q_op_list_add(sizeof(struct q_op_assignment));
+			
+			op->gen_code = q_op_assignment_gen_code;
+
+			((struct q_op_assignment *) op)->dest = va_arg(arg_list, symtabEntry *);
+			((struct q_op_assignment *) op)->left_operand = va_arg(arg_list, struct q_operand);
+			((struct q_op_assignment *) op)->arith_operator = va_arg(arg_list, enum q_arithmetic_operator);
+			((struct q_op_assignment *) op)->right_operand = va_arg(arg_list, struct q_operand);
+
+			break;
+		case Q_INSTR_TYPE_JUMP:
+			op = q_op_list_add(sizeof(struct q_op_jump));
+			
+			op->gen_code = q_op_jump_gen_code;
+	
+			((struct q_op_jump *) op)->condition = NULL;
+			((struct q_op_jump *) op)->target = va_arg(arg_list, int);
+			
+			break;
+		case Q_INSTR_TYPE_COND_JUMP:
+			op = q_op_list_add(sizeof(struct q_op_jump));
+			
+			op->gen_code = q_op_jump_gen_code;
+	
+			((struct q_op_jump *) op)->condition = va_arg(arg_list, struct q_jump_condition *);
+			((struct q_op_jump *) op)->target = va_arg(arg_list, int);
+			
+			break;
+		default: /* Unsupported instruction type */
+			break;
+	}
+	
+	va_end(arg_list);
+}
+
 /*
  * Appends a new quadrupel code instruction to the end of the instruction list.
  * q_op_size: sizeof(...), where ... is the type of the instruction to be added
@@ -68,20 +126,6 @@ struct q_op_list *q_op_list_create(struct q_op_list *op_list, size_t q_op_size) 
 		op_list->next = result;
 	
 	return result;
-}
-
-void q_op_assignment_init_simple(struct q_op_assignment *assignment, symtabEntry *dest, struct q_operand operand) {
-	q_op_assignment_init(assignment, dest, operand, Q_ARITHMETIC_OP_NONE, literal_false);
-}
-
-void q_op_assignment_init(struct q_op_assignment *assignment, symtabEntry *dest, struct q_operand left_operand, 
-                          enum q_arithmetic_operator arith_operator, struct q_operand right_operand) {
-	assignment->op.gen_code = q_op_assignment_gen_code;
-
-	assignment->dest = dest;
-	assignment->left_operand = left_operand;
-	assignment->right_operand = right_operand;
-	assignment->arith_operator = arith_operator;
 }
 
 const struct variable_type *q_op_assignment_get_result_type(struct q_operand left_operand, 
@@ -174,13 +218,6 @@ int q_operand_to_string(struct q_operand operator, char *string) {
 		default:
 			return 0;
 	}
-}
-
-void q_op_jump_init(struct q_op_jump *jump, struct q_jump_condition *cond, int target) {
-	jump->op.gen_code = q_op_jump_gen_code;
-	
-	jump->condition = cond;
-	jump->target = target;
 }
 
 char *q_relative_operator_to_string(enum q_relative_operator rel_op) {

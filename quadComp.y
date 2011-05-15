@@ -223,9 +223,8 @@ expression
 			YYABORT;
 		}
 
-		// Allocate space for a new quadrupel code instruction at the end of the instruction stream
-		struct q_op_assignment *ass_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
-		q_op_assignment_init(ass_op, $2.data.varEntry, $2, Q_ARITHMETIC_OP_ADD, (struct q_operand) literal_one);
+		// var := var + 1
+		q_instr_add(Q_INSTR_TYPE_CALC, $2.data.varEntry, $2, Q_ARITHMETIC_OP_ADD, literal_one);
 
 		$$ = $2;
 	}
@@ -238,35 +237,15 @@ expression
 		$$ = literal_one;
 	}
     | expression LOG_AND          expression {
-		// Initialize the return variable
-		symtabEntry *tempVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
-		$$ = q_operand_init_variable(tempVarEntry);
+		symtabEntry *retVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(retVarEntry);
 
-		// if (expr1 == false) goto [instrCount + 1]
-		struct q_jump_condition *jump_when_expr1_false_cond = q_jump_condition_create($1, Q_RELATIVE_OP_EQUAL, literal_false);
-		struct q_op_jump *jump_when_expr1_false_instr = (struct q_op_jump *) q_op_list_add(sizeof(struct q_op_jump));
-		q_op_jump_init(jump_when_expr1_false_instr, jump_when_expr1_false_cond, q_op_list_get_instr_count() + 3);
+		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_FALSE($1), q_op_list_get_instr_count() + 3);
+		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_FALSE($3), q_op_list_get_instr_count() + 2);
 
-		// if (expr2 == false) goto [instrCount + 1]
-		struct q_jump_condition *jump_when_expr2_false_cond = q_jump_condition_create($3, Q_RELATIVE_OP_EQUAL, literal_false);
-		struct q_op_jump *jump_when_expr2_false_instr = (struct q_op_jump *) q_op_list_add(sizeof(struct q_op_jump));
-		q_op_jump_init(jump_when_expr2_false_instr, jump_when_expr2_false_cond, q_op_list_get_instr_count() + 2);
-
-		/* Only executed if logical and of expr1 and expr2 evaluates to true
-		 * temp = 1  ; Return true
-		 */
-		struct q_op_assignment *ret_true_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
-		q_op_assignment_init_simple(ret_true_op, tempVarEntry, literal_one);
-
-		// GOTO end
-		struct q_op_jump *jump_to_end_instr = (struct q_op_jump *) q_op_list_add(sizeof(struct q_op_jump));
-		q_op_jump_init(jump_to_end_instr, NULL, q_op_list_get_instr_count() + 1);
-
-		/* Only executes if logical and of expr1 and expr 2 evaluates to false
-		 * temp = 0  ; return false
-		 */
-		struct q_op_assignment *ret_false_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
-		q_op_assignment_init_simple(ret_false_op, tempVarEntry, literal_false);
+		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_TRUE);
+		q_instr_add(Q_INSTR_TYPE_JUMP, q_op_list_get_instr_count() + 1);
+		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_FALSE);
 	}
     | expression NOT_EQUAL        expression {
 		// TODO
@@ -297,12 +276,10 @@ expression
 		$$ = literal_one;
 	}
     | expression '+'              expression {
-		struct q_op_assignment *ass_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
+		symtabEntry *retVarEntry = getTempVariable(&symbolTable, q_op_assignment_get_result_type($1, $3), symbolTableFather);
+		$$ = q_operand_init_variable(retVarEntry);
 
-		symtabEntry *tempVarEntry = getTempVariable(&symbolTable, q_op_assignment_get_result_type($1, $3), symbolTableFather);
-		$$ = q_operand_init_variable(tempVarEntry);
-
-		q_op_assignment_init(ass_op, tempVarEntry, $1, Q_ARITHMETIC_OP_ADD, $3);
+		q_instr_add(Q_INSTR_TYPE_CALC, retVarEntry, $1, Q_ARITHMETIC_OP_ADD, $3);
 	}
     | expression '-'              expression {
 		// TODO
@@ -321,29 +298,15 @@ expression
 		$$ = literal_one;
 	}
     | '!' expression                         {
-		// Initialize the return variable
-		symtabEntry *tempVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
-		$$ = q_operand_init_variable(tempVarEntry);
+		symtabEntry *retVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(retVarEntry);
 
-		// if (expr == false) goto [instrCount + 1]
-		struct q_jump_condition *jump_when_false_cond = q_jump_condition_create($2, Q_RELATIVE_OP_EQUAL, literal_false);
-		struct q_op_jump *jump_when_false_instr = (struct q_op_jump *) q_op_list_add(sizeof(struct q_op_jump));
-		q_op_jump_init(jump_when_false_instr, jump_when_false_cond, q_op_list_get_instr_count() + 2);
+		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_FALSE($2), q_op_list_get_instr_count() + 2);
 
-		/* Only executed if expr is false
-		 * temp = 1  ; Return true
-		 */
-		struct q_op_assignment *ret_true_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
-		q_op_assignment_init_simple(ret_true_op, tempVarEntry, literal_one);
+		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_FALSE);
+		q_instr_add(Q_INSTR_TYPE_JUMP, q_op_list_get_instr_count() + 1);
 
-		struct q_op_jump *jump_to_end_instr = (struct q_op_jump *) q_op_list_add(sizeof(struct q_op_jump));
-		q_op_jump_init(jump_to_end_instr, NULL, q_op_list_get_instr_count() + 1);
-
-		/* Only executes if expr is true
-		 * temp = 0  ; return false
-		 */
-		struct q_op_assignment *ret_false_op = (struct q_op_assignment *) q_op_list_add(sizeof(struct q_op_assignment));
-		q_op_assignment_init_simple(ret_false_op, tempVarEntry, literal_false);
+		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_TRUE);
 	}
     | '+' expression %prec U_PLUS            {
 		// TODO
