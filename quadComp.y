@@ -240,11 +240,11 @@ expression
 		symtabEntry *retVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
 		$$ = q_operand_init_variable(retVarEntry);
 
-		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_FALSE($1), q_op_list_get_instr_count() + 3);
-		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_FALSE($3), q_op_list_get_instr_count() + 2);
+		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_FALSE($1), q_op_list_get_instr_count() + 4);
+		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_FALSE($3), q_op_list_get_instr_count() + 3);
 
 		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_TRUE);
-		q_instr_add(Q_INSTR_TYPE_JUMP, q_op_list_get_instr_count() + 1);
+		q_instr_add(Q_INSTR_TYPE_JUMP, q_op_list_get_instr_count() + 2);
 		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_FALSE);
 	}
     | expression NOT_EQUAL        expression {
@@ -301,10 +301,10 @@ expression
 		symtabEntry *retVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
 		$$ = q_operand_init_variable(retVarEntry);
 
-		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_FALSE($2), q_op_list_get_instr_count() + 2);
+		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_FALSE($2), q_op_list_get_instr_count() + 3);
 
 		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_FALSE);
-		q_instr_add(Q_INSTR_TYPE_JUMP, q_op_list_get_instr_count() + 1);
+		q_instr_add(Q_INSTR_TYPE_JUMP, q_op_list_get_instr_count() + 2);
 
 		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_TRUE);
 	}
