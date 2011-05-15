@@ -213,7 +213,17 @@ unmatched_statement
 
 assignment
     : expression                 
-    | id ASSIGN          expression { DEBUG("Assignment recognized"); }
+    | id ASSIGN          expression { 
+		DEBUG("Assignment recognized");
+
+		// Lookup identifier in symbol table
+		symtabEntry *symtabEntry = getSymboltableEntryInScope(symbolTable, symbolTableFather, $1);
+		if (!symtabEntry) {
+			fprintf(stderr, "In function %s: Variable not declared: %s\n", symbolTableFather->name, $1);
+			YYABORT;
+		}
+		q_instr_add(Q_INSTR_TYPE_ASSIGN, symtabEntry, $3);
+	}
     ;
 
 expression
