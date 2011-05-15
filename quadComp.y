@@ -277,8 +277,13 @@ expression
 		$$ = literal_one;
 	}
     | expression LESS_OR_EQUAL    expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *retVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(retVarEntry);
+
+		q_instr_add(Q_INSTR_TYPE_COND_JUMP, q_jump_condition_create($1, Q_RELATIVE_OP_LOWER_EQUAL, $3), q_op_list_get_instr_count() + 3);
+		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_FALSE);
+		q_instr_add(Q_INSTR_TYPE_JUMP, q_op_list_get_instr_count() + 2);
+		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_TRUE);
 	}
     | expression '>'              expression {
 		// TODO
