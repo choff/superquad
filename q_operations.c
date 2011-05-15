@@ -42,7 +42,7 @@ int instruction_count = 0;
 /* Adds an instruction of type "type" to the instruction list.
  * Depending on the type of instruction, additional parameters have to be provided in the
  * varargs section */
-void q_instr_add(enum q_instruction_type type, ...) {
+struct q_op *q_instr_add(enum q_instruction_type type, ...) {
 	struct q_op *op;
 	char code_buf[100];
 
@@ -94,6 +94,8 @@ void q_instr_add(enum q_instruction_type type, ...) {
 	}
 	
 	va_end(arg_list);
+	
+	return op;
 }
 
 void q_instr_add_rel(symtabEntry *result, struct q_operand opd1, enum q_relative_operator relop, struct q_operand opd2) {
