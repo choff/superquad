@@ -233,8 +233,15 @@ expression
 		$$ = literal_one;
 	}
     | expression LOG_OR           expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *retVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);
+		$$ = q_operand_init_variable(retVarEntry);
+
+		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_TRUE($1), q_op_list_get_instr_count() + 4);
+		q_instr_add(Q_INSTR_TYPE_COND_JUMP, Q_JUMP_WHEN_TRUE($3), q_op_list_get_instr_count() + 3);
+
+		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_FALSE);
+		q_instr_add(Q_INSTR_TYPE_JUMP, q_op_list_get_instr_count() + 2);
+		q_instr_add(Q_INSTR_TYPE_ASSIGN, retVarEntry, Q_TRUE);
 	}
     | expression LOG_AND          expression {
 		symtabEntry *retVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);

@@ -12,6 +12,7 @@
 #define Q_TRUE Q_ONE
 
 #define Q_JUMP_WHEN_FALSE(opd) (q_jump_condition_create(opd, Q_RELATIVE_OP_EQUAL, Q_FALSE))
+#define Q_JUMP_WHEN_TRUE(opd) (q_jump_condition_create(opd, Q_RELATIVE_OP_NOT_EQUAL, Q_FALSE))
 
 struct q_operand {
 	enum {
@@ -69,7 +70,8 @@ enum q_relative_operator {
 	Q_RELATIVE_OP_LOWER_EQUAL,
 	Q_RELATIVE_OP_EQUAL,
 	Q_RELATIVE_OP_GREATER_EQUAL,
-	Q_RELATIVE_OP_GREATER
+	Q_RELATIVE_OP_GREATER,
+	Q_RELATIVE_OP_NOT_EQUAL
 };
 
 struct q_jump_condition {

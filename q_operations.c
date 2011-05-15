@@ -232,6 +232,8 @@ char *q_relative_operator_to_string(enum q_relative_operator rel_op) {
 			return ">=";
 		case Q_RELATIVE_OP_GREATER:
 			return ">";
+		case Q_RELATIVE_OP_NOT_EQUAL:
+			return "<>";
 		default:
 			return NULL;
 	}
