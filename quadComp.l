@@ -22,6 +22,8 @@
 }
 
 
+#.*\n	{ fprintf(stderr, "Notice: Unimplemented prepocessor directive %s", yytext); }
+
 "||"	{ return LOG_OR; } // 
 "&&"	{ return LOG_AND; }
 "!="	{ return NOT_EQUAL; }

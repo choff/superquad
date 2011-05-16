@@ -34,6 +34,8 @@ char *q_relative_operator_to_string(enum q_relative_operator rel_op);
 int q_jump_condition_to_string(struct q_jump_condition *cond, char *code_buf);
 int q_op_jump_gen_code(struct q_op *op, char *code_buf);
 
+int q_op_ret_gen_code(struct q_op *op, char *code_buf);
+
 struct q_op_list *first_instruction = NULL;
 struct q_op_list *last_instruction = NULL;
 int instruction_count = 0;
@@ -86,6 +88,23 @@ struct q_op *q_instr_add(enum q_instruction_type type, ...) {
 	
 			((struct q_op_jump *) op)->condition = va_arg(arg_list, struct q_jump_condition *);
 			((struct q_op_jump *) op)->target = va_arg(arg_list, int);
+			
+			break;
+		case Q_INSTR_TYPE_RET:
+			op = q_op_list_add(sizeof(struct q_op_ret));
+			
+			op->gen_code = q_op_ret_gen_code;
+			
+			struct q_operand *ret_value = va_arg(arg_list, struct q_operand *);
+			struct q_operand *ret_copy;
+			
+			if (ret_value) {
+				ret_copy = malloc(sizeof(struct q_operand));
+				*ret_copy = *ret_value;
+			} else
+				ret_copy = NULL;
+			
+			((struct q_op_ret *) op)->ret_value =  ret_copy;
 			
 			break;
 		default: /* Unsupported instruction type */
@@ -269,6 +288,18 @@ int q_op_jump_gen_code(struct q_op *op, char *code_buf) {
 	
 	pos += sprintf(pos, "GOTO %d", jmp_op->target);
 	return (code_buf - pos);
+}
+
+int q_op_ret_gen_code(struct q_op *op, char *code_buf) {
+	struct q_op_ret *ret_op = (struct q_op_ret *) op;
+	int cnt = sprintf(code_buf, "RETURN");
+	
+	if (ret_op->ret_value) {
+		code_buf[cnt++] = ' ';
+		cnt += q_operand_to_string(*(ret_op->ret_value), &code_buf[cnt]);
+	}
+	
+	return cnt;
 }
 
 void q_op_gen_code(FILE *output_file) {

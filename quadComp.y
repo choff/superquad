@@ -205,8 +205,12 @@ matched_statement
 		$8->target = q_op_list_get_instr_count();
 	}
     | assignment ';'                                                
-    | RETURN ';'                                                 
-    | RETURN assignment ';'                                                  
+    | RETURN ';' {
+		q_instr_add(Q_INSTR_TYPE_RET, NULL);
+	}
+    | RETURN assignment ';' {
+		q_instr_add(Q_INSTR_TYPE_RET, &($2));
+	}
     | WHILE '(' assignment ')' matched_statement                             
     | DO stmt_no_marker statement WHILE '(' assignment ')' ';'                              {
 		// Jump to head of loop if "assignment" evaluated to "true"
