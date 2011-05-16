@@ -1,6 +1,7 @@
 %{
 	#include <stdio.h>
 	#include <string.h>
+	#include <math.h>
 	#include "global.h"
 	#include "q_operations.h"
 	
@@ -338,8 +339,26 @@ expression
 		q_instr_add_rel(result, $1, Q_RELATIVE_OP_LOWER, $3);
 	}
     | expression SHIFTLEFT        expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *retVarEntry = getTempVariable(&symbolTable, q_op_assignment_get_result_type($1, $3), symbolTableFather);
+		$$ = q_operand_init_variable(retVarEntry);
+                                                                           
+		if (q_operand_get_type($3)->symtabType == INTEGER) {
+			if ($3.type == OPD_TYPE_LITERAL) {
+				struct q_operand rightMulOp;
+				rightMulOp.type = OPD_TYPE_LITERAL;
+				rightMulOp.data.literal.type = &type_integer;
+				rightMulOp.data.literal.value.int_value = (int) pow(2, $3.data.literal.value.int_value);
+				q_instr_add(Q_INSTR_TYPE_CALC, retVarEntry, $1, Q_ARITHMETIC_OP_MUL, rightMulOp);
+			}
+			else {
+				fprintf(stderr, "Can only shift by a constant value.");
+				YYABORT;
+			}
+		}
+		else {
+			fprintf(stderr, "Can't shift by a non-integer value.");
+			YYABORT;
+		}
 	}
     | expression '+'              expression {
 		symtabEntry *retVarEntry = getTempVariable(&symbolTable, q_op_assignment_get_result_type($1, $3), symbolTableFather);
@@ -348,20 +367,28 @@ expression
 		q_instr_add(Q_INSTR_TYPE_CALC, retVarEntry, $1, Q_ARITHMETIC_OP_ADD, $3);
 	}
     | expression '-'              expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *retVarEntry = getTempVariable(&symbolTable, q_op_assignment_get_result_type($1, $3), symbolTableFather);
+		$$ = q_operand_init_variable(retVarEntry);
+
+		q_instr_add(Q_INSTR_TYPE_CALC, retVarEntry, $1, Q_ARITHMETIC_OP_SUB, $3);
 	}
     | expression '*'              expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *retVarEntry = getTempVariable(&symbolTable, q_op_assignment_get_result_type($1, $3), symbolTableFather);
+		$$ = q_operand_init_variable(retVarEntry);
+
+		q_instr_add(Q_INSTR_TYPE_CALC, retVarEntry, $1, Q_ARITHMETIC_OP_MUL, $3);
 	}
     | expression '/'              expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *retVarEntry = getTempVariable(&symbolTable, q_op_assignment_get_result_type($1, $3), symbolTableFather);
+		$$ = q_operand_init_variable(retVarEntry);
+
+		q_instr_add(Q_INSTR_TYPE_CALC, retVarEntry, $1, Q_ARITHMETIC_OP_DIV, $3);
 	}
     | expression '%'              expression {
-		// TODO
-		$$ = literal_one;
+		symtabEntry *retVarEntry = getTempVariable(&symbolTable, q_op_assignment_get_result_type($1, $3), symbolTableFather);
+		$$ = q_operand_init_variable(retVarEntry);
+
+		q_instr_add(Q_INSTR_TYPE_CALC, retVarEntry, $1, Q_ARITHMETIC_OP_MOD, $3);
 	}
     | '!' expression                         {
 		symtabEntry *retVarEntry = getTempVariable(&symbolTable, &type_integer, symbolTableFather);

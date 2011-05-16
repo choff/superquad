@@ -100,6 +100,8 @@ struct q_operand q_operand_init_variable(symtabEntry *varEntry);
 extern const struct q_operand literal_zero;
 extern const struct q_operand literal_one;
 
+const struct variable_type *q_operand_get_type(struct q_operand operator);
+
 int q_op_list_get_instr_count();
 struct q_op *q_instr_add(enum q_instruction_type type, ...);
 void q_instr_add_rel(symtabEntry *result, struct q_operand opd1, enum q_relative_operator relop, struct q_operand opd2);
