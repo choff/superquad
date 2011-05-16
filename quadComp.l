@@ -5,11 +5,22 @@
 	#include "quadComp.tab.h"
 %}
 
+%x IN_COMMENT
 
 %%
 
 \/\/.*\n { DEBUG("One-line comment"); } // one-line comment
-\/\*.*\*\/ { DEBUG("Mutiline comment"); } // mutiline comment
+
+<INITIAL>{
+"/*"              BEGIN(IN_COMMENT); DEBUG("Multi-line comment");
+}
+<IN_COMMENT>{
+"*/"      BEGIN(INITIAL);
+[^*\n]+   // eat comment in chunks
+"*"       // eat the lone star
+\n        yylineno++;
+}
+
 
 #.*\n	{ fprintf(stderr, "Notice: Unimplemented prepocessor directive %s", yytext); }
 

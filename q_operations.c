@@ -28,7 +28,6 @@ const struct q_operand literal_one = {
 char q_arithmetic_operator_to_string(enum q_arithmetic_operator);
 int q_op_assignment_gen_code(struct q_op *op, char *code_buf);
 
-const struct variable_type *q_operand_get_type(struct q_operand operator);
 int q_operand_to_string(struct q_operand operator, char *string);
 
 char *q_relative_operator_to_string(enum q_relative_operator rel_op);
