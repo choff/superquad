@@ -87,6 +87,7 @@ function
 	{ 
 		// $5: number of parameters in parameter_list
 		getSymboltableEntry(symbolTable, $<string>2, NULL)->parameter = $5;
+		memOffset = 0;
 	}
     
 	| var_type id set_father '(' parameter_list ')'
@@ -429,8 +430,7 @@ expression
 		$$.data.literal.value.int_value = $1;
 	}
     | '(' expression ')'                     {
-		// TODO
-		$$ = literal_one;
+		$$ = $2;
 	}
     | id '(' exp_list ')'                    {
 		// TODO
