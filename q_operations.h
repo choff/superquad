@@ -39,7 +39,8 @@ enum q_instruction_type {
 	Q_INSTR_TYPE_ASSIGN,
 	Q_INSTR_TYPE_CALC,
 	Q_INSTR_TYPE_JUMP,
-	Q_INSTR_TYPE_COND_JUMP
+	Q_INSTR_TYPE_COND_JUMP,
+	Q_INSTR_TYPE_RET
 };
 
 struct q_op {
@@ -87,6 +88,11 @@ struct q_op_jump {
 	
 	struct q_jump_condition *condition; /* Jump condition, NULL for unconditional jump */
 	int target; /* Index of target instruction */
+};
+
+struct q_op_ret {
+	struct q_op op;
+	struct q_operand *ret_value;
 };
 
 struct q_op_list {

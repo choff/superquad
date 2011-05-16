@@ -11,6 +11,8 @@
 \/\/.*\n { DEBUG("One-line comment"); } // one-line comment
 \/\*.*\*\/ { DEBUG("Mutiline comment"); } // mutiline comment
 
+#.*\n	{ fprintf(stderr, "Notice: Unimplemented prepocessor directive %s", yytext); }
+
 "||"	{ return LOG_OR; } // 
 "&&"	{ return LOG_AND; }
 "!="	{ return NOT_EQUAL; }
