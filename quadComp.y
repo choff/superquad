@@ -92,6 +92,7 @@ function
 	| var_type id set_father '(' parameter_list ')'
 		{
 			getSymboltableEntry(symbolTable, $<string>2, NULL)->parameter = $5;
+			getSymboltableEntry(symbolTable, $<string>2, NULL)->line = q_op_list_get_instr_count();
 		}
 	  function_body
 	  	{
@@ -472,10 +473,12 @@ int main(int argc, char **argv) {
 
 	yyparse();
 
-	FILE* symFile;
-	symFile = fopen("ourSym.txt", "w");
+//	FILE* symFile;
+//	symFile = fopen("ourSym.txt", "w");
 //	fputs("blub\n", symFile);
-    writeSymboltable(symbolTable, symFile);
+//  writeSymboltable(symbolTable, symFile);
+    writeSymboltable(symbolTable, stdout);
+	fprintf(stdout, "\n\n");
 	q_op_gen_code(stdout);
 
 	return 0;
